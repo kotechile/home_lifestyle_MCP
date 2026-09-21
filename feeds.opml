@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<opml version="2.0">
+  <head>
+    <title>Home &amp; Professional Living Feeds</title>
+  </head>
+  <body>
+    <outline text="Smart Home &amp; Tech">
+      <outline type="rss" text="Home Assistant Blog" xmlUrl="https://www.home-assistant.io/atom.xml" htmlUrl="https://www.home-assistant.io"/>
+      <outline type="rss" text="The Verge - Smart Home" xmlUrl="https://www.theverge.com/smart-home/rss/index.xml" htmlUrl="https://www.theverge.com/smart-home"/>
+      <outline type="rss" text="Ars Technica Gadgets" xmlUrl="https://feeds.arstechnica.com/arstechnica/gadgets" htmlUrl="https://arstechnica.com/gadgets"/>
+      <outline type="rss" text="Automate Your Life" xmlUrl="https://automateyourlife.net/feed/" htmlUrl="https://automateyourlife.net"/>
+    </outline>
+    <outline text="Residential Energy &amp; Decarbonization">
+      <outline type="rss" text="Canary Media" xmlUrl="https://www.canarymedia.com/rss" htmlUrl="https://www.canarymedia.com"/>
+      <outline type="rss" text="Electrek Energy" xmlUrl="https://electrek.co/guides/energy/feed/" htmlUrl="https://electrek.co/guides/energy"/>
+      <outline type="rss" text="CleanTechnica" xmlUrl="https://cleantechnica.com/category/solar-power/feed/" htmlUrl="https://cleantechnica.com/category/solar-power"/>
+    </outline>
+    <outline text="Economy &amp; Real Estate">
+      <outline type="rss" text="Calculated Risk" xmlUrl="https://www.calculatedriskblog.com/feeds/posts/default" htmlUrl="https://www.calculatedriskblog.com"/>
+      <outline type="rss" text="Wolf Street" xmlUrl="https://wolfstreet.com/category/all/housing-bubble/feed/" htmlUrl="https://wolfstreet.com/category/all/housing-bubble"/>
+      <outline type="rss" text="Redfin Research" xmlUrl="https://www.redfin.com/news/feed/" htmlUrl="https://www.redfin.com/news"/>
+      <outline type="rss" text="Mortgage News Daily" xmlUrl="https://www.mortgagenewsdaily.com/rss/news" htmlUrl="https://www.mortgagenewsdaily.com"/>
+    </outline>
+    <outline text="Architecture &amp; Design">
+      <outline type="rss" text="Dwell" xmlUrl="https://www.dwell.com/feed" htmlUrl="https://www.dwell.com"/>
+      <outline type="rss" text="Dezeen Residential" xmlUrl="https://www.dezeen.com/architecture/residential/feed/" htmlUrl="https://www.dezeen.com/architecture/residential"/>
+      <outline type="rss" text="Remodelista" xmlUrl="https://www.remodelista.com/feed/" htmlUrl="https://www.remodelista.com"/>
+      <outline type="rss" text="Wirecutter Home" xmlUrl="https://www.nytimes.com/wirecutter/feed/" htmlUrl="https://www.nytimes.com/wirecutter"/>
+    </outline>
+    <outline text="Zoning &amp; Policy">
+      <outline type="rss" text="Planetizen" xmlUrl="https://www.planetizen.com/rss.xml" htmlUrl="https://www.planetizen.com"/>
+      <outline type="rss" text="CityLab Bloomberg" xmlUrl="https://www.bloomberg.com/citylab/rss" htmlUrl="https://www.bloomberg.com/citylab"/>
+    </outline>
+  </body>
+</opml>

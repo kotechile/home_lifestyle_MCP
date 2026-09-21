@@ -1,0 +1,137 @@
+# Home, Real Estate & Lifestyle Intelligence Pipeline Configuration
+
+storage:
+  db_path: "data/home_intelligence.db"
+
+llm:
+  provider: "openrouter" # "openrouter", "openai", "gemini", or "mock"
+  model: "nousresearch/hermes-3-llama-3.1-405b" # Or "gpt-4o-mini", "gemini-2.0-flash"
+  temperature: 0.2
+  max_tokens: 2000
+
+categories:
+  smart_home: "Smart Tech & IoT"
+  energy: "Residential Energy & Clean Tech"
+  real_estate: "Housing Macro & Real Estate"
+  architecture: "Architecture, DIY & Design"
+  policy: "Urban Policy & Zoning"
+
+ingest:
+  max_items_per_feed: 10
+  feeds:
+    # 1. Smart Home, Matter & IoT Infrastructure
+    - name: "Home Assistant Blog"
+      url: "https://www.home-assistant.io/atom.xml"
+      category: "Smart Tech & IoT"
+      tags: ["Home Assistant", "Matter", "Thread", "Local Control", "Smart Home", "Automations"]
+      description: "Local-first automations, Matter/Thread, and core ecosystem updates"
+
+    - name: "The Verge (Smart Home)"
+      url: "https://www.theverge.com/smart-home/rss/index.xml"
+      category: "Smart Tech & IoT"
+      tags: ["The Verge", "Smart Home", "Matter", "IoT", "Consumer Tech", "Reviews"]
+      description: "Mainstream protocol announcements, device rollouts, and consumer tech reviews"
+
+    - name: "Ars Technica (Gadgets)"
+      url: "https://feeds.arstechnica.com/arstechnica/gadgets"
+      category: "Smart Tech & IoT"
+      tags: ["Ars Technica", "Networking", "Wi-Fi", "Hardware", "Security", "Gadgets"]
+      description: "Home networking hardware, Wi-Fi performance, security, and smart devices"
+
+    - name: "Automate Your Life"
+      url: "https://automateyourlife.net/feed/"
+      category: "Smart Tech & IoT"
+      tags: ["Automate Your Life", "Sensors", "Tutorials", "Smart Home", "Hardware Testing"]
+      description: "Independent tutorials, sensor deployments, and smart home hardware testing"
+
+    # 2. Residential Energy, EV Charging & Clean Tech
+    - name: "Electrek (Energy)"
+      url: "https://electrek.co/guides/energy/feed/"
+      category: "Residential Energy & Clean Tech"
+      tags: ["Electrek", "Solar", "Home Battery", "EV Charging", "Powerwall", "Bidirectional Charging"]
+      description: "Residential solar, home battery storage systems, and EV bidirectional charging"
+
+    - name: "Canary Media"
+      url: "https://www.canarymedia.com/rss"
+      category: "Residential Energy & Clean Tech"
+      tags: ["Canary Media", "Decarbonization", "Heat Pumps", "Electrification", "Utility Rates", "Clean Tech"]
+      description: "Residential decarbonization, heat pump adoption, and utility rate structures"
+
+    - name: "CleanTechnica (Solar)"
+      url: "https://cleantechnica.com/category/solar-power/feed/"
+      category: "Residential Energy & Clean Tech"
+      tags: ["CleanTechnica", "Solar", "Storage", "Clean Energy", "Rebates", "Electrification"]
+      description: "Rooftop solar policy, residential battery setups, and state clean-energy rebates"
+
+    # 3. Housing Macro, Real Estate & Mortgage Economics
+    - name: "Calculated Risk"
+      url: "https://www.calculatedriskblog.com/feeds/posts/default"
+      category: "Housing Macro & Real Estate"
+      tags: ["Calculated Risk", "Macro Housing", "Inventory", "Housing Starts", "Mortgage Performance"]
+      description: "Macro housing data, inventory tracking, mortgage performance, and housing starts"
+
+    - name: "Wolf Street (Housing)"
+      url: "https://wolfstreet.com/category/all/housing-bubble/feed/"
+      category: "Housing Macro & Real Estate"
+      tags: ["Wolf Street", "Housing Bubble", "Valuation", "Mortgage Rates", "Market Analysis"]
+      description: "Data-driven market analysis, housing valuation shifts, and mortgage rate trends"
+
+    - name: "Redfin Data Center"
+      url: "https://www.redfin.com/news/feed/"
+      category: "Housing Macro & Real Estate"
+      tags: ["Redfin", "Real Estate", "Home Prices", "Buyer Demand", "Inventory", "Migration"]
+      description: "Regional pricing shifts, buyer/seller demand metrics, and migration patterns"
+
+    - name: "Mortgage News Daily"
+      url: "https://www.mortgagenewsdaily.com/rss/news"
+      category: "Housing Macro & Real Estate"
+      tags: ["Mortgage News Daily", "Mortgage Rates", "Yields", "Lending", "Refinancing", "Fed"]
+      description: "Daily mortgage rate tracking, bond yield impacts, and lending policy changes"
+
+    # 4. Home Renovation, Architecture & Living
+    - name: "Dwell"
+      url: "https://www.dwell.com/feed"
+      category: "Architecture, DIY & Design"
+      tags: ["Dwell", "Architecture", "ADU", "Floor Plans", "Renovation", "Modern Living"]
+      description: "Modern residential layouts, ADU blueprints, floor plan optimization, and additions"
+
+    - name: "Dezeen (Residential)"
+      url: "https://www.dezeen.com/architecture/residential/feed/"
+      category: "Architecture, DIY & Design"
+      tags: ["Dezeen", "Architecture", "Renovation", "Materials", "Residential Design"]
+      description: "High-end architectural case studies, structural renovations, and material innovations"
+
+    - name: "Remodelista"
+      url: "https://www.remodelista.com/feed/"
+      category: "Architecture, DIY & Design"
+      tags: ["Remodelista", "Interior Design", "Fittings", "Finishes", "Workspace", "Remodeling"]
+      description: "Interior workspace design, architectural fittings, and high-quality home finishes"
+
+    - name: "Wirecutter (Home)"
+      url: "https://www.nytimes.com/wirecutter/feed/"
+      category: "Architecture, DIY & Design"
+      tags: ["Wirecutter", "NYT", "Product Reviews", "Appliances", "Home Gear", "Tools", "DIY"]
+      description: "Long-term reliability testing on major appliances, tools, and home gear"
+
+    # 5. Urban Policy, Zoning Reforms & Regulations
+    - name: "Planetizen"
+      url: "https://www.planetizen.com/rss.xml"
+      category: "Urban Policy & Zoning"
+      tags: ["Planetizen", "Zoning", "ADU Laws", "Land Use", "Urban Planning", "Housing Policy"]
+      description: "Nationwide single-family zoning reforms, ADU legislation, and land-use laws"
+
+    - name: "Bloomberg CityLab"
+      url: "https://www.bloomberg.com/citylab/rss"
+      category: "Urban Policy & Zoning"
+      tags: ["CityLab", "Bloomberg", "Housing Policy", "Property Tax", "Suburban Planning", "Infrastructure"]
+      description: "Urban/suburban housing policy, infrastructure investments, and local tax trends"
+
+mcp:
+  name: "home-lifestyle-intel"
+  version: "1.0.0"
+  transport: "stdio" # "stdio" or "sse"
+  sse_host: "0.0.0.0"
+  sse_port: 8081
+
+scheduler:
+  crawl_interval_hours: 6
