@@ -10,15 +10,26 @@ from app.db import (
     insert_market_metric,
     insert_product_evaluation,
 )
-from app.llm import _fallback_extract
-from app.mcp_server import (
-    get_diy_and_renovation_ideas,
-    get_latest_home_insights,
-    get_market_and_mortgage_trends,
-    get_pipeline_stats,
-    get_product_recommendations,
-    search_home_intelligence,
+from app.llm import (
+    _fallback_extract,
+    get_llm_client,
+    get_model_name,
+    resolve_provider,
 )
+
+try:
+    from app.mcp_server import (
+        get_diy_and_renovation_ideas,
+        get_latest_home_insights,
+        get_market_and_mortgage_trends,
+        get_pipeline_stats,
+        get_product_recommendations,
+        search_home_intelligence,
+    )
+    HAS_MCP = True
+except ImportError:
+    HAS_MCP = False
+
 
 
 @pytest.fixture
@@ -53,6 +64,35 @@ def test_heuristic_extraction():
     assert len(result["takeaways"]) >= 1
 
 
+def test_deepseek_configuration(monkeypatch):
+    # Test provider and model resolution with user env vars
+    monkeypatch.setenv("LLM_PROVIDER", "deepseek")
+    monkeypatch.setenv("LLM_MODEL", "deepseek-flash")
+    monkeypatch.setenv("DEEPSEEK_API_KEY", "sk-deepseek-test")
+
+    assert resolve_provider() == "deepseek"
+    assert get_model_name() == "deepseek-flash"
+
+    client = get_llm_client()
+    assert client is not None
+    assert str(client.base_url).rstrip("/") == "https://api.deepseek.com"
+    assert client.api_key == "sk-deepseek-test"
+
+
+def test_deepseek_fallback_key(monkeypatch):
+    # Test fallback to LLM_API_KEY if DEEPSEEK_API_KEY is not explicitly set
+    monkeypatch.setenv("LLM_PROVIDER", "deepseek")
+    monkeypatch.delenv("DEEPSEEK_API_KEY", raising=False)
+    monkeypatch.delenv("DEEPSEEK_KEY", raising=False)
+    monkeypatch.setenv("LLM_API_KEY", "sk-generic-llm-key")
+
+    assert resolve_provider() == "deepseek"
+    client = get_llm_client()
+    assert client is not None
+    assert client.api_key == "sk-generic-llm-key"
+
+
+@pytest.mark.skipif(not HAS_MCP, reason="fastmcp is not installed in local environment")
 def test_mcp_tools(temp_db):
     # Seed document
     doc_id = insert_document(

@@ -16,81 +16,98 @@ def resolve_provider() -> str:
     """Resolve provider with automatic fallback based on available API keys."""
     explicit = os.environ.get("LLM_PROVIDER")
     if explicit:
-        return explicit.lower()
+        return explicit.lower().strip().strip("'\"")
 
+    if os.environ.get("DEEPSEEK_API_KEY") or os.environ.get("DEEPSEEK_KEY"):
+        return "deepseek"
     if os.environ.get("OPENAI_API_KEY"):
         return "openai"
     if os.environ.get("GEMINI_API_KEY"):
         return "gemini"
-    if os.environ.get("DEEPSEEK_API_KEY"):
-        return "deepseek"
     if os.environ.get("OPENROUTER_API_KEY"):
         return "openrouter"
 
-    config_provider = get_config().get("llm", {}).get("provider", "openrouter").lower()
+    config_provider = get_config().get("llm", {}).get("provider", "openrouter").lower().strip()
     return config_provider
 
 
 def get_llm_client() -> Optional[OpenAI]:
-    """Initialize OpenAI-compatible client for OpenRouter, Gemini, DeepSeek, or OpenAI."""
+    """Initialize OpenAI-compatible client for DeepSeek, OpenRouter, Gemini, or OpenAI."""
     provider = resolve_provider()
 
-    if provider == "openrouter":
-        api_key = os.environ.get("OPENROUTER_API_KEY")
+    if provider == "deepseek":
+        api_key = (
+            os.environ.get("DEEPSEEK_API_KEY")
+            or os.environ.get("DEEPSEEK_KEY")
+            or os.environ.get("LLM_API_KEY")
+        )
+        if api_key:
+            base_url = (
+                os.environ.get("DEEPSEEK_BASE_URL")
+                or os.environ.get("LLM_BASE_URL")
+                or "https://api.deepseek.com"
+            )
+            return OpenAI(
+                base_url=base_url,
+                api_key=api_key.strip().strip("'\""),
+            )
+
+    elif provider == "openrouter":
+        api_key = os.environ.get("OPENROUTER_API_KEY") or os.environ.get("LLM_API_KEY")
         if api_key:
             return OpenAI(
                 base_url="https://openrouter.ai/api/v1",
-                api_key=api_key,
+                api_key=api_key.strip().strip("'\""),
             )
 
     elif provider == "gemini":
-        api_key = os.environ.get("GEMINI_API_KEY")
+        api_key = os.environ.get("GEMINI_API_KEY") or os.environ.get("LLM_API_KEY")
         if api_key:
             return OpenAI(
                 base_url="https://generativelanguage.googleapis.com/v1beta/openai/",
-                api_key=api_key,
-            )
-
-    elif provider == "deepseek":
-        api_key = os.environ.get("DEEPSEEK_API_KEY")
-        if api_key:
-            return OpenAI(
-                base_url="https://api.deepseek.com",
-                api_key=api_key,
+                api_key=api_key.strip().strip("'\""),
             )
 
     elif provider == "openai":
-        api_key = os.environ.get("OPENAI_API_KEY")
+        api_key = os.environ.get("OPENAI_API_KEY") or os.environ.get("LLM_API_KEY")
         if api_key:
-            return OpenAI(api_key=api_key)
+            return OpenAI(api_key=api_key.strip().strip("'\""))
 
     # General fallback if any key exists
+    if os.environ.get("DEEPSEEK_API_KEY") or os.environ.get("DEEPSEEK_KEY"):
+        base_url = os.environ.get("DEEPSEEK_BASE_URL") or os.environ.get("LLM_BASE_URL") or "https://api.deepseek.com"
+        return OpenAI(
+            base_url=base_url,
+            api_key=(os.environ.get("DEEPSEEK_API_KEY") or os.environ.get("DEEPSEEK_KEY")).strip().strip("'\""),
+        )
     if os.environ.get("OPENROUTER_API_KEY"):
-        return OpenAI(base_url="https://openrouter.ai/api/v1", api_key=os.environ["OPENROUTER_API_KEY"])
+        return OpenAI(base_url="https://openrouter.ai/api/v1", api_key=os.environ["OPENROUTER_API_KEY"].strip())
     if os.environ.get("GEMINI_API_KEY"):
-        return OpenAI(base_url="https://generativelanguage.googleapis.com/v1beta/openai/", api_key=os.environ["GEMINI_API_KEY"])
-    if os.environ.get("DEEPSEEK_API_KEY"):
-        return OpenAI(base_url="https://api.deepseek.com", api_key=os.environ["DEEPSEEK_API_KEY"])
+        return OpenAI(base_url="https://generativelanguage.googleapis.com/v1beta/openai/", api_key=os.environ["GEMINI_API_KEY"].strip())
     if os.environ.get("OPENAI_API_KEY"):
-        return OpenAI(api_key=os.environ["OPENAI_API_KEY"])
+        return OpenAI(api_key=os.environ["OPENAI_API_KEY"].strip())
 
     return None
 
 
 def get_model_name() -> str:
+    explicit_model = os.environ.get("LLM_MODEL")
+    if explicit_model:
+        return explicit_model.strip().strip("'\"")
+
     provider = resolve_provider()
     config_llm = get_config().get("llm", {})
     config_model = config_llm.get("model")
-    config_provider = config_llm.get("provider", "").lower()
+    config_provider = config_llm.get("provider", "").lower().strip()
 
-    if provider == "openrouter":
-        return os.environ.get("LLM_MODEL", config_model or "nousresearch/hermes-3-llama-3.1-405b")
+    if provider == "deepseek":
+        return config_model if config_provider == "deepseek" else "deepseek-flash"
+    elif provider == "openrouter":
+        return config_model or "nousresearch/hermes-3-llama-3.1-405b"
     elif provider == "gemini":
-        return os.environ.get("LLM_MODEL", config_model if config_provider == "gemini" else "gemini-2.0-flash")
-    elif provider == "deepseek":
-        return os.environ.get("LLM_MODEL", config_model if config_provider == "deepseek" else "deepseek-flash")
+        return config_model if config_provider == "gemini" else "gemini-2.0-flash"
     elif provider == "openai":
-        return os.environ.get("LLM_MODEL", config_model if config_provider == "openai" else "gpt-4o-mini")
+        return config_model if config_provider == "openai" else "gpt-4o-mini"
     return "mock"
 
 
@@ -191,20 +208,48 @@ def analyze_article(
 
     user_prompt = f"Source: {source_name}\nCategory: {category}\nTitle: {title}\n\nContent:\n{truncated_content}"
 
+    model_name = get_model_name()
+    is_reasoner = "reasoner" in model_name.lower() or "r1" in model_name.lower()
+    is_hermes = "hermes" in model_name.lower()
+
+    create_kwargs: Dict[str, Any] = {
+        "model": model_name,
+        "messages": [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_prompt},
+        ],
+    }
+
+    if not is_reasoner:
+        create_kwargs["temperature"] = 0.2
+        if not is_hermes:
+            create_kwargs["response_format"] = {"type": "json_object"}
+
     try:
-        response = client.chat.completions.create(
-            model=get_model_name(),
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": user_prompt},
-            ],
-            temperature=0.2,
-            response_format={"type": "json_object"} if "hermes" not in get_model_name() and "reasoner" not in get_model_name() else None,
-        )
+        try:
+            response = client.chat.completions.create(**create_kwargs)
+        except Exception as api_err:
+            if "response_format" in create_kwargs and "response_format" in str(api_err).lower():
+                logger.warning(f"Retrying chat completion without response_format: {api_err}")
+                create_kwargs.pop("response_format", None)
+                response = client.chat.completions.create(**create_kwargs)
+            else:
+                raise api_err
+
         raw_text = response.choices[0].message.content or ""
-        clean_json = re.sub(r"^```(?:json)?\s*", "", raw_text.strip())
-        clean_json = re.sub(r"\s*```$", "", clean_json.strip())
-        data = json.loads(clean_json)
+
+        # Remove reasoning tags like <think>...</think> (common in DeepSeek R1/reasoner)
+        clean_text = re.sub(r"<think>.*?</think>", "", raw_text, flags=re.DOTALL).strip()
+
+        # Find JSON block enclosed in ```json ... ``` or outermost { ... }
+        json_match = re.search(r"```(?:json)?\s*(\{.*?\})\s*```", clean_text, flags=re.DOTALL)
+        if json_match:
+            json_str = json_match.group(1)
+        else:
+            json_match = re.search(r"(\{.*\})", clean_text, flags=re.DOTALL)
+            json_str = json_match.group(1) if json_match else clean_text
+
+        data = json.loads(json_str)
         return {
             "summary": data.get("summary", title),
             "key_metrics": data.get("key_metrics", []),
