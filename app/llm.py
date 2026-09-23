@@ -18,19 +18,21 @@ def resolve_provider() -> str:
     if explicit:
         return explicit.lower()
 
-    if os.environ.get("OPENROUTER_API_KEY"):
-        return "openrouter"
-    if os.environ.get("GEMINI_API_KEY"):
-        return "gemini"
     if os.environ.get("OPENAI_API_KEY"):
         return "openai"
+    if os.environ.get("GEMINI_API_KEY"):
+        return "gemini"
+    if os.environ.get("DEEPSEEK_API_KEY"):
+        return "deepseek"
+    if os.environ.get("OPENROUTER_API_KEY"):
+        return "openrouter"
 
     config_provider = get_config().get("llm", {}).get("provider", "openrouter").lower()
     return config_provider
 
 
 def get_llm_client() -> Optional[OpenAI]:
-    """Initialize OpenAI-compatible client for OpenRouter, Gemini, or OpenAI."""
+    """Initialize OpenAI-compatible client for OpenRouter, Gemini, DeepSeek, or OpenAI."""
     provider = resolve_provider()
 
     if provider == "openrouter":
@@ -49,6 +51,14 @@ def get_llm_client() -> Optional[OpenAI]:
                 api_key=api_key,
             )
 
+    elif provider == "deepseek":
+        api_key = os.environ.get("DEEPSEEK_API_KEY")
+        if api_key:
+            return OpenAI(
+                base_url="https://api.deepseek.com",
+                api_key=api_key,
+            )
+
     elif provider == "openai":
         api_key = os.environ.get("OPENAI_API_KEY")
         if api_key:
@@ -59,6 +69,8 @@ def get_llm_client() -> Optional[OpenAI]:
         return OpenAI(base_url="https://openrouter.ai/api/v1", api_key=os.environ["OPENROUTER_API_KEY"])
     if os.environ.get("GEMINI_API_KEY"):
         return OpenAI(base_url="https://generativelanguage.googleapis.com/v1beta/openai/", api_key=os.environ["GEMINI_API_KEY"])
+    if os.environ.get("DEEPSEEK_API_KEY"):
+        return OpenAI(base_url="https://api.deepseek.com", api_key=os.environ["DEEPSEEK_API_KEY"])
     if os.environ.get("OPENAI_API_KEY"):
         return OpenAI(api_key=os.environ["OPENAI_API_KEY"])
 
@@ -67,14 +79,18 @@ def get_llm_client() -> Optional[OpenAI]:
 
 def get_model_name() -> str:
     provider = resolve_provider()
-    config_model = get_config().get("llm", {}).get("model")
+    config_llm = get_config().get("llm", {})
+    config_model = config_llm.get("model")
+    config_provider = config_llm.get("provider", "").lower()
 
     if provider == "openrouter":
         return os.environ.get("LLM_MODEL", config_model or "nousresearch/hermes-3-llama-3.1-405b")
     elif provider == "gemini":
-        return os.environ.get("LLM_MODEL", "gemini-2.0-flash")
+        return os.environ.get("LLM_MODEL", config_model if config_provider == "gemini" else "gemini-2.0-flash")
+    elif provider == "deepseek":
+        return os.environ.get("LLM_MODEL", config_model if config_provider == "deepseek" else "deepseek-flash")
     elif provider == "openai":
-        return os.environ.get("LLM_MODEL", "gpt-4o-mini")
+        return os.environ.get("LLM_MODEL", config_model if config_provider == "openai" else "gpt-4o-mini")
     return "mock"
 
 
@@ -183,7 +199,7 @@ def analyze_article(
                 {"role": "user", "content": user_prompt},
             ],
             temperature=0.2,
-            response_format={"type": "json_object"} if "hermes" not in get_model_name() else None,
+            response_format={"type": "json_object"} if "hermes" not in get_model_name() and "reasoner" not in get_model_name() else None,
         )
         raw_text = response.choices[0].message.content or ""
         clean_json = re.sub(r"^```(?:json)?\s*", "", raw_text.strip())
